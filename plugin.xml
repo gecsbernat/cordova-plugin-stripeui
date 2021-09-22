@@ -1,7 +1,7 @@
 <?xml version='1.0' encoding='utf-8'?>
 <plugin id="cordova-plugin-stripeui" version="1.0.0" xmlns="http://apache.org/cordova/ns/plugins/1.0" xmlns:android="http://schemas.android.com/apk/res/android">
   <name>StripeUI Plugin</name>
-  <repo></repo>
+  <repo>https://github.com/gecsbernat/cordova-plugin-stripeui</repo>
   <js-module name="StripeUIPlugin" src="www/StripeUIPlugin.js">
     <clobbers target="StripeUIPlugin"/>
   </js-module>

@@ -4,6 +4,9 @@
   "cordova_name": "StripeUIPlugin",
   "description": "Cordova plugin for Stripe prebuilt native UI",
   "license": "MIT",
+  "author": {
+    "name": "Gecs Bernat"
+  },
   "repo": "https://github.com/gecsbernat/cordova-plugin-stripeui",
   "issue": "https://github.com/gecsbernat/cordova-plugin-stripeui/issues",
   "keywords": [
