@@ -1,0 +1,3 @@
+dependencies {
+  implementation 'com.stripe:stripe-android:17.2.0'
+}
