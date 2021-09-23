@@ -1,36 +1,3 @@
-# cordova-plugin-stripeui
-Cordova plugin for Stripe's Prebuilt UI
-
-## Features
-
-- It uses the [Stripe Android SDK](https://github.com/stripe/stripe-android) and [Stripe iOS SDK](https://github.com/stripe/stripe-ios) single step UI.
-- Sample backend code in the server folder. (NodeJs & Cloud-function)
-- Creates Stripe Customer from input
-- Accept payment
-
-## Installation
-```sh
-ionic cordova plugin add https://github.com/gecsbernat/cordova-plugin-stripeui.git
-```
-
-## Requirements
-- Stripe account
-- Secret key and Publishable key (See backend code)
-
-## Backend
-- You should host the backend code on your server or in a firebase cloud function.
-- See server folder.
-
-## Usage
-- See demo folder for sample Ionic/Cordova project
-
-```sh
-npm run androidbuild
-npm run iosbuild
-```
-
-- Sample typescript service code:
-```typescript
 import { HttpClient } from '@angular/common/http';
 import { Injectable } from '@angular/core';
 import { Platform } from '@ionic/angular';
@@ -106,41 +73,3 @@ export class StripePaymentService {
     }
 
 }
-```
-
-- In your payment page:
-```typescript
-....
-  async payment() {
-    try {
-      this.loading = true;
-      // customerId, customerEmail, customerName can be null.
-      // customerId should be your saved customer from prevoius payment.
-      const payment = await this.stripeService.makePayment(this.amount, this.currency, this.customerId, this.customerEmail, this.customerName);
-      const paymentIntent = payment.paymentIntent;
-      const customer = payment.customer;
-      const result = payment.result;
-      const code = result.code ? Number(result.code) : -1;
-      const message = result.message || null;
-      const error = result.error || null;
-      console.log({ paymentIntent, customer, code, message, error });
-      this.loading = false;
-      if (code === 0) {
-        // PAYMENT_COMPLETED
-        this.savePayment(paymentIntent, customer);
-      } else if (code === 1) {
-        // PAYMENT_CANCELED
-      } else if (code === 2) {
-        // PAYMENT_FAILED
-      }
-    } catch (error) {
-      this.loading = false;
-      console.log(error);
-    }
-  }
-
-  savePayment(paymentIntent: string, customer: string) {
-    // TODO: save the payment and customer in your database for later use...
-  }
-  ....
-```
