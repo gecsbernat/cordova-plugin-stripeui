@@ -32,14 +32,12 @@ public class StripeUIPlugin extends CordovaPlugin {
                 callback = callbackContext;
                 String publishableKey = args.getString(0);
                 String companyName = args.getString(1);
-                String appleMerchantId = args.getString(2);
-                String paymentIntent = args.getString(3);
-                String customer = args.getString(4);
-                String ephemeralKey = args.getString(5);
+                String paymentIntent = args.getString(2);
+                String customer = args.getString(3);
+                String ephemeralKey = args.getString(4);
                 Intent intent = new Intent(cordova.getActivity().getApplicationContext(), CheckoutActivity.class);
                 intent.putExtra("publishableKey", publishableKey);
                 intent.putExtra("companyName", companyName);
-                intent.putExtra("appleMerchantId", appleMerchantId);
                 intent.putExtra("paymentIntent", paymentIntent);
                 intent.putExtra("customer", customer);
                 intent.putExtra("ephemeralKey", ephemeralKey);

@@ -22,4 +22,21 @@
     <source-file src="src/android/CheckoutActivity.java" target-dir="src/cordova/plugin/stripeuiplugin" />
     <framework custom="true" src="src/android/gradle.gradle" type="gradleReference"/>	
   </platform>
+  <platform name="ios">
+    <config-file target="config.xml" parent="/*">
+      <feature name="StripeUIPlugin">
+        <param name="ios-package" value="StripeUIPlugin"/>
+      </feature>
+    </config-file>
+    <source-file src="src/ios/StripeUIPlugin.swift" />
+    <dependency id="cordova-plugin-add-swift-support" version="2.0.2"/>
+    <podspec>
+      <config>
+        <source url="https://cdn.cocoapods.org/"/>
+      </config>
+      <pods use-frameworks="true">
+        <pod name="Stripe" spec="~> 21.8.1"/>
+      </pods>
+    </podspec>
+  </platform>
 </plugin>

@@ -5,6 +5,7 @@ const SK = 'sk_test_...';
 const PK = 'pk_test_...';
 const COMPANY_NAME = 'COMPANY_NAME';
 const APPLE_MERCHANT_ID = 'APPLE_MERCHANT_ID';
+const APPLE_MERCHANT_COUNTRYCODE = 'APPLE_MERCHANT_COUNTRYCODE';
 const stripe = new Stripe(SK, { apiVersion: '2020-08-27' });
 
 export const payment = functions.https.onRequest(async (request, response) => {
@@ -43,10 +44,11 @@ export const payment = functions.https.onRequest(async (request, response) => {
             response.status(200).send({
                 publishableKey: PK,
                 companyName: COMPANY_NAME,
-                appleMerchantId: APPLE_MERCHANT_ID,
                 paymentIntent: paymentIntent.client_secret,
                 customer: customer.id,
-                ephemeralKey: ephemeralKey.secret
+                ephemeralKey: ephemeralKey.secret,
+                appleMerchantId: APPLE_MERCHANT_ID,
+                appleMerchantCountryCode: APPLE_MERCHANT_COUNTRYCODE
             });
         } catch (error) {
             error = JSON.stringify(error);

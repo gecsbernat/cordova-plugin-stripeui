@@ -23,8 +23,8 @@
                 Shopping cart
             </ion-card-title>
         </ion-card-header>
-        <ion-card-content>
-            <ion-list lines="full">
+        <ion-card-content class="ion-no-padding">
+            <ion-list lines="full" class="ion-no-padding">
                 <ion-item *ngFor="let item of items">
                     <ion-label style="white-space: normal;text-align: start;">
                         {{item.name}}
@@ -47,6 +47,7 @@
             </ion-list>
             <div class="ion-padding">
                 <ion-button color="success" expand="block" class="ion-no-margin" (click)="payment()">
+                    <ion-icon slot="start" name="logo-usd"></ion-icon>
                     Checkout
                 </ion-button>
             </div>

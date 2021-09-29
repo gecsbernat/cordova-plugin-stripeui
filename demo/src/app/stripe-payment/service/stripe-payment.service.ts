@@ -32,11 +32,12 @@ export class StripePaymentService {
                 const subscribe = this.http.post(this.SERVER_URL, body).subscribe((result: any) => {
                     const publishableKey = result.publishableKey;
                     const companyName = result.companyName;
-                    const appleMerchantId = result.appleMerchantId;
                     const paymentIntent = result.paymentIntent;
                     const customer = result.customer
                     const ephemeralKey = result.ephemeralKey;
-                    this.presentPaymentSheet(publishableKey, companyName, appleMerchantId, paymentIntent, customer, ephemeralKey).then((result) => {
+                    const appleMerchantId = result.appleMerchantId;
+                    const appleMerchantCountryCode = result.appleMerchantCountryCode;
+                    this.presentPaymentSheet(publishableKey, companyName, paymentIntent, customer, ephemeralKey, appleMerchantId, appleMerchantCountryCode).then((result) => {
                         resolve({ result, paymentIntent, customer });
                     }).catch((error) => {
                         reject(error);
@@ -52,10 +53,10 @@ export class StripePaymentService {
         });
     }
 
-    private presentPaymentSheet(publishableKey: string, companyName: string, appleMerchantId: string, paymentIntent: string, customer: string, ephemeralKey: string): Promise<any> {
+    private presentPaymentSheet(publishableKey: string, companyName: string, paymentIntent: string, customer: string, ephemeralKey: string, appleMerchantId: string, appleMerchantCountryCode: string): Promise<any> {
         return new Promise((resolve, reject) => {
             if (this.isCordova) {
-                StripeUIPlugin.presentPaymentSheet(publishableKey, companyName, appleMerchantId, paymentIntent, customer, ephemeralKey, (success: any) => {
+                StripeUIPlugin.presentPaymentSheet(publishableKey, companyName, paymentIntent, customer, ephemeralKey, appleMerchantId, appleMerchantCountryCode, (success: any) => {
                     try {
                         const result = JSON.parse(success) as any;
                         resolve(result);
