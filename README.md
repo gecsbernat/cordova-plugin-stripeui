@@ -1,12 +1,14 @@
 # cordova-plugin-stripeui
-Cordova plugin for Stripe's Prebuilt UI
+Cordova plugin for Stripe Prebuilt UI on [Android](https://stripe.com/docs/payments/accept-a-payment?platform=android) and [iOS](https://stripe.com/docs/payments/accept-a-payment?platform=ios)
 
 ## Features
 
 - It uses the [Stripe Android SDK](https://github.com/stripe/stripe-android) and [Stripe iOS SDK](https://github.com/stripe/stripe-ios) single step UI.
-- Sample backend code in the server folder. (NodeJs & Cloud-function)
-- Creates Stripe Customer from input
-- Accept payment
+- Sample backend code in the server folder (NodeJS & Cloud Function).
+- Demo Ionic/Cordova project in the demo folder (Ionic 5 / Cordova).
+- Creates Stripe Customer from input.
+- Accept payment.
+- Apple Pay support.
 
 ## Installation
 ```sh
@@ -14,17 +16,18 @@ ionic cordova plugin add https://github.com/gecsbernat/cordova-plugin-stripeui.g
 ```
 
 ## Requirements
-- Stripe account
-- Secret key and Publishable key (See backend code)
+- Stripe account.
+- Secret key and Publishable key (See server folder).
+- Apple Merchant ID and Apple Merchant Country Code [for Apple Pay](https://stripe.com/docs/payments/accept-a-payment?platform=ios&ui=payment-sheet#apple-pay).
 
 ## Backend
-- You should host the backend code on your server or in a firebase cloud function.
-- See server folder.
+- You should host the backend code on your server or in a firebase cloud function (See server folder).
 
 ## Usage
-- See demo folder for sample Ionic/Cordova project
+- See demo folder for sample Ionic/Cordova project.
 
 ```sh
+npm i --save
 npm run androidbuild
 npm run iosbuild
 ```
@@ -65,11 +68,12 @@ export class StripePaymentService {
                 const subscribe = this.http.post(this.SERVER_URL, body).subscribe((result: any) => {
                     const publishableKey = result.publishableKey;
                     const companyName = result.companyName;
-                    const appleMerchantId = result.appleMerchantId;
                     const paymentIntent = result.paymentIntent;
                     const customer = result.customer
                     const ephemeralKey = result.ephemeralKey;
-                    this.presentPaymentSheet(publishableKey, companyName, appleMerchantId, paymentIntent, customer, ephemeralKey).then((result) => {
+                    const appleMerchantId = result.appleMerchantId;
+                    const appleMerchantCountryCode = result.appleMerchantCountryCode;
+                    this.presentPaymentSheet(publishableKey, companyName, paymentIntent, customer, ephemeralKey, appleMerchantId, appleMerchantCountryCode).then((result) => {
                         resolve({ result, paymentIntent, customer });
                     }).catch((error) => {
                         reject(error);
@@ -85,10 +89,10 @@ export class StripePaymentService {
         });
     }
 
-    private presentPaymentSheet(publishableKey: string, companyName: string, appleMerchantId: string, paymentIntent: string, customer: string, ephemeralKey: string): Promise<any> {
+    private presentPaymentSheet(publishableKey: string, companyName: string, paymentIntent: string, customer: string, ephemeralKey: string, appleMerchantId: string, appleMerchantCountryCode: string): Promise<any> {
         return new Promise((resolve, reject) => {
             if (this.isCordova) {
-                StripeUIPlugin.presentPaymentSheet(publishableKey, companyName, appleMerchantId, paymentIntent, customer, ephemeralKey, (success: any) => {
+                StripeUIPlugin.presentPaymentSheet(publishableKey, companyName, paymentIntent, customer, ephemeralKey, appleMerchantId, appleMerchantCountryCode, (success: any) => {
                     try {
                         const result = JSON.parse(success) as any;
                         resolve(result);
