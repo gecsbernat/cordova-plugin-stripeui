@@ -1,7 +1,0 @@
-{
-  "name": "stripe-ui-demo",
-  "integrations": {
-    "cordova": {}
-  },
-  "type": "angular"
-}
