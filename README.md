@@ -1,11 +1,13 @@
 # cordova-plugin-stripeui
 Cordova plugin for Stripe Prebuilt UI on [Android](https://stripe.com/docs/payments/accept-a-payment?platform=android) and [iOS](https://stripe.com/docs/payments/accept-a-payment?platform=ios)
 
+## Demo project
+ --> [Ionic5/Cordova](https://github.com/gecsbernat/cordova-plugin-stripeui-demo) <--
+
 ## Features
 
 - It uses the [Stripe Android SDK](https://github.com/stripe/stripe-android) and [Stripe iOS SDK](https://github.com/stripe/stripe-ios) single step UI.
 - Sample backend code in the server folder (NodeJS & Cloud Function).
-- Demo Ionic/Cordova project in the demo folder (Ionic 5 / Cordova).
 - Creates Stripe Customer from input.
 - Accept payment.
 - Apple Pay support.
@@ -24,13 +26,6 @@ ionic cordova plugin add https://github.com/gecsbernat/cordova-plugin-stripeui.g
 - You should host the backend code on your server or in a firebase cloud function (See server folder).
 
 ## Usage
-- See demo folder for sample Ionic/Cordova project.
-
-```sh
-npm i --save
-npm run androidbuild
-npm run iosbuild
-```
 
 - Sample typescript service code:
 ```typescript
