@@ -11,6 +11,7 @@ Cordova plugin for Stripe Prebuilt UI on [Android](https://stripe.com/docs/payme
 - Creates Stripe Customer from input.
 - Accept payment.
 - Apple Pay support.
+- Google Pay support.
 
 ## Installation
 ```sh
@@ -20,7 +21,8 @@ ionic cordova plugin add https://github.com/gecsbernat/cordova-plugin-stripeui.g
 ## Requirements
 - Stripe account.
 - Secret key and Publishable key (See server folder).
-- Apple Merchant ID and Apple Merchant Country Code [for Apple Pay](https://stripe.com/docs/payments/accept-a-payment?platform=ios&ui=payment-sheet#apple-pay).
+- Apple Merchant ID and Apple Merchant Country Code [Apple Pay](https://stripe.com/docs/payments/accept-a-payment?platform=ios&ui=payment-sheet#apple-pay).
+- Google Pay setup [Google Pay](https://stripe.com/docs/payments/accept-a-payment?platform=android&ui=payment-sheet#google-pay).
 
 ## Backend
 - You should host the backend code on your server or in a firebase cloud function (See server folder).
@@ -34,6 +36,35 @@ import { Injectable } from '@angular/core';
 import { Platform } from '@ionic/angular';
 
 declare const StripeUIPlugin: any;
+
+export interface PaymentResult {
+    customerId?: string;
+    code?: string;
+    message?: string;
+    error?: string;
+}
+
+export interface PaymentConfig {
+    publishableKey?: string;
+    companyName?: string;
+    customerId?: string;
+    paymentIntent?: string;
+    ephemeralKey?: string;
+    appleMerchantId?: string;
+    appleMerchantCountryCode?: string;
+}
+
+export interface BillingConfig {
+    billingEmail?: string;
+    billingName?: string;
+    billingPhone?: string;
+    billingCity?: string;
+    billingCountry?: string;
+    billingLine1?: string;
+    billingLine2?: string;
+    billingPostalCode?: string;
+    billingState?: string;
+}
 
 @Injectable({ providedIn: 'root' })
 export class StripePaymentService {
@@ -50,7 +81,7 @@ export class StripePaymentService {
         });
     }
 
-    makePayment(amount: number, currency: string, customerId: string = null, customerEmail: string = null, customerName: string = null): Promise<{ result: { code: string, message: string, error: string }, paymentIntent: string, customer: string }> {
+    makePayment(amount: number, currency: string, customerId: string = null, customerEmail: string = null, customerName: string = null, billingConfig: BillingConfig): Promise<PaymentResult> {
         return new Promise((resolve, reject) => {
             if (this.isCordova) {
                 const body = {
@@ -61,15 +92,18 @@ export class StripePaymentService {
                     customerName: customerName
                 };
                 const subscribe = this.http.post(this.SERVER_URL, body).subscribe((result: any) => {
-                    const publishableKey = result.publishableKey;
-                    const companyName = result.companyName;
-                    const paymentIntent = result.paymentIntent;
-                    const customer = result.customer
-                    const ephemeralKey = result.ephemeralKey;
-                    const appleMerchantId = result.appleMerchantId;
-                    const appleMerchantCountryCode = result.appleMerchantCountryCode;
-                    this.presentPaymentSheet(publishableKey, companyName, paymentIntent, customer, ephemeralKey, appleMerchantId, appleMerchantCountryCode).then((result) => {
-                        resolve({ result, paymentIntent, customer });
+                    const paymentConfig: PaymentConfig = {
+                        publishableKey: result.publishableKey,
+                        companyName: result.companyName,
+                        paymentIntent: result.paymentIntent,
+                        customerId: result.customerId,
+                        ephemeralKey: result.ephemeralKey,
+                        appleMerchantId: result.appleMerchantId,
+                        appleMerchantCountryCode: result.appleMerchantCountryCode
+                    }
+                    this.presentPaymentSheet(paymentConfig, billingConfig).then((result) => {
+                        result.customerId = paymentConfig.customerId;
+                        resolve(result);
                     }).catch((error) => {
                         reject(error);
                     });
@@ -84,12 +118,12 @@ export class StripePaymentService {
         });
     }
 
-    private presentPaymentSheet(publishableKey: string, companyName: string, paymentIntent: string, customer: string, ephemeralKey: string, appleMerchantId: string, appleMerchantCountryCode: string): Promise<any> {
+    private presentPaymentSheet(paymentConfig: PaymentConfig, billingConfig: BillingConfig): Promise<PaymentResult> {
         return new Promise((resolve, reject) => {
             if (this.isCordova) {
-                StripeUIPlugin.presentPaymentSheet(publishableKey, companyName, paymentIntent, customer, ephemeralKey, appleMerchantId, appleMerchantCountryCode, (success: any) => {
+                StripeUIPlugin.presentPaymentSheet(paymentConfig, billingConfig, (success: any) => {
                     try {
-                        const result = JSON.parse(success) as any;
+                        const result = JSON.parse(success) as PaymentResult;
                         resolve(result);
                     } catch (unused) {
                         resolve(success);
@@ -113,20 +147,14 @@ export class StripePaymentService {
   async payment() {
     try {
       this.loading = true;
-      // customerId, customerEmail, customerName can be null.
+      // customerId, customerEmail, customerName, billingConfig can be null.
       // customerId should be your saved customer from prevoius payment.
-      const payment = await this.stripeService.makePayment(this.amount, this.currency, this.customerId, this.customerEmail, this.customerName);
-      const paymentIntent = payment.paymentIntent;
-      const customer = payment.customer;
-      const result = payment.result;
-      const code = result.code ? Number(result.code) : -1;
-      const message = result.message || null;
-      const error = result.error || null;
-      console.log({ paymentIntent, customer, code, message, error });
+      const paymentResult = await this.stripeService.makePayment(this.amount, this.currency, this.customerId, this.customerEmail, this.customerName, this.billingConfig);
+      const code = paymentResult.code ? Number(paymentResult.code) : -1;
       this.loading = false;
       if (code === 0) {
         // PAYMENT_COMPLETED
-        this.savePayment(paymentIntent, customer);
+        this.savePayment(paymentResult);
       } else if (code === 1) {
         // PAYMENT_CANCELED
       } else if (code === 2) {
@@ -138,8 +166,11 @@ export class StripePaymentService {
     }
   }
 
-  savePayment(paymentIntent: string, customer: string) {
+  savePayment(paymentResult: PaymentResult) {
     // TODO: save the payment and customer in your database for later use...
+    // customerId?: string; code?: string; message?: string; error?: string;
+    console.log({ paymentResult });
+    this.dismiss(true);
   }
   ....
 ```
