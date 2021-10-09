@@ -24,19 +24,33 @@ public class CheckoutActivity extends AppCompatActivity {
         String publishableKey = receivedIntent.getStringExtra("publishableKey");
         String companyName = receivedIntent.getStringExtra("companyName");
         String paymentIntent = receivedIntent.getStringExtra("paymentIntent");
-        String customer = receivedIntent.getStringExtra("customer");
+        String customerId = receivedIntent.getStringExtra("customerId");
         String ephemeralKey = receivedIntent.getStringExtra("ephemeralKey");
+        String appleMerchantCountryCode = receivedIntent.getStringExtra("appleMerchantCountryCode");
+        String billingEmail = receivedIntent.getStringExtra("billingEmail");
+        String billingName = receivedIntent.getStringExtra("billingName");
+        String billingPhone = receivedIntent.getStringExtra("billingPhone");
+        String billingCity = receivedIntent.getStringExtra("billingCity");
+        String billingCountry = receivedIntent.getStringExtra("billingCountry");
+        String billingLine1 = receivedIntent.getStringExtra("billingLine1");
+        String billingLine2 = receivedIntent.getStringExtra("billingLine2");
+        String billingPostalCode = receivedIntent.getStringExtra("billingPostalCode");
+        String billingState = receivedIntent.getStringExtra("billingState");
         try {
             assert publishableKey != null;
             assert paymentIntent != null;
             assert companyName != null;
-            assert customer != null;
+            assert customerId != null;
             assert ephemeralKey != null;
+            assert appleMerchantCountryCode != null;
             PaymentConfiguration.init(this, publishableKey);
-            PaymentSheet paymentSheet = new PaymentSheet(this, result -> {
-                onPaymentSheetResult(result);
-            });
-            paymentSheet.presentWithPaymentIntent(paymentIntent, new PaymentSheet.Configuration(companyName, new PaymentSheet.CustomerConfiguration(customer, ephemeralKey)));
+            PaymentSheet paymentSheet = new PaymentSheet(this, this::onPaymentSheetResult);
+            PaymentSheet.Address billingAddress = new PaymentSheet.Address(billingCity, billingCountry, billingLine1, billingLine2, billingPostalCode, billingState);
+            PaymentSheet.BillingDetails billingDetails = new PaymentSheet.BillingDetails(billingAddress, billingEmail, billingName, billingPhone);
+            PaymentSheet.CustomerConfiguration customerConfig = new PaymentSheet.CustomerConfiguration(customerId, ephemeralKey);
+            PaymentSheet.GooglePayConfiguration googlePayConfig = new PaymentSheet.GooglePayConfiguration(PaymentSheet.GooglePayConfiguration.Environment.Production, appleMerchantCountryCode);
+            PaymentSheet.Configuration configuration = new PaymentSheet.Configuration(companyName, customerConfig, googlePayConfig, null, billingDetails);
+            paymentSheet.presentWithPaymentIntent(paymentIntent, configuration);
         } catch (Exception e) {
             resultMap.put("code", "2");
             resultMap.put("message", "PAYMENT_FAILED");

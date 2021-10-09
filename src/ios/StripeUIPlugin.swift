@@ -3,29 +3,48 @@ import Stripe
 
 @objc(StripeUIPlugin) class StripeUIPlugin : CDVPlugin {
     var paymentSheet: PaymentSheet?
-    
     @objc(presentPaymentSheet:)
     func presentPaymentSheet(command: CDVInvokedUrlCommand){
-        let publishableKey = (command.argument(at: 0) ?? "") as! String
-        let companyName = (command.argument(at: 1) ?? "") as! String
-        let paymentIntent = (command.argument(at: 2) ?? "") as! String
-        let customer = (command.argument(at: 3) ?? "") as! String
-        let ephemeralKey = (command.argument(at: 4) ?? "") as! String
-        let appleMerchantId = (command.argument(at: 5) ?? "") as! String
-        let appleMerchantCountryCode = (command.argument(at: 6) ?? "") as! String
-        
+        let paymentConfig = (command.argument(at: 0) ?? "") as! [String: Any]
+        // let billingConfig = (command.argument(at: 1) ?? [String: Any]()) as! [String: Any]
+        let publishableKey = (paymentConfig["publishableKey"] ?? "") as! String
+        let companyName = (paymentConfig["companyName"] ?? "") as! String
+        let paymentIntent = (paymentConfig["paymentIntent"] ?? "") as! String
+        let customerId = (paymentConfig["customerId"] ?? "") as! String
+        let ephemeralKey = (paymentConfig["ephemeralKey"] ?? "") as! String
+        let appleMerchantId = (paymentConfig["appleMerchantId"] ?? "") as! String
+        let appleMerchantCountryCode = (paymentConfig["appleMerchantCountryCode"] ?? "") as! String
+        // let billingEmail = (billingConfig["billingEmail"] ?? "") as! String
+        // let billingName = (billingConfig["billingName"] ?? "") as! String
+        // let billingPhone = (billingConfig["billingPhone"] ?? "") as! String
+        // let billingCity = (billingConfig["billingCity"] ?? "") as! String
+        // let billingCountry = (billingConfig["billingCountry"] ?? "") as! String
+        // let billingLine1 = (billingConfig["billingLine1"] ?? "") as! String
+        // let billingLine2 = (billingConfig["billingLine2"] ?? "") as! String
+        // let billingPostalCode = (billingConfig["billingPostalCode"] ?? "") as! String
+        // let billingState = (billingConfig["billingState"] ?? "") as! String
         StripeAPI.defaultPublishableKey = publishableKey
-        
         var configuration = PaymentSheet.Configuration()
         if companyName != "" {
             configuration.merchantDisplayName = companyName
         }
-        if customer != "" && ephemeralKey != "" {
-            configuration.customer = .init(id: customer, ephemeralKeySecret: ephemeralKey)
+        if customerId != "" && ephemeralKey != "" {
+            configuration.customer = .init(id: customerId, ephemeralKeySecret: ephemeralKey)
         }
         if appleMerchantId != "" && appleMerchantCountryCode != "" {
             configuration.applePay = .init(merchantId: appleMerchantId, merchantCountryCode: appleMerchantCountryCode)
         }
+        // if !billingConfig.isEmpty {
+        //     configuration.defaultBillingDetails.email = billingEmail
+        //     configuration.defaultBillingDetails.name = billingName
+        //     configuration.defaultBillingDetails.phone = billingPhone
+        //     configuration.defaultBillingDetails.address.city = billingCity
+        //     configuration.defaultBillingDetails.address.country = billingCountry
+        //     configuration.defaultBillingDetails.address.line1 = billingLine1
+        //     configuration.defaultBillingDetails.address.line2 = billingLine2
+        //     configuration.defaultBillingDetails.address.postal_code = billingPostalCode
+        //     configuration.defaultBillingDetails.address.state = billingState
+        // }
         if paymentIntent != "" {
             self.paymentSheet = PaymentSheet(paymentIntentClientSecret: paymentIntent, configuration: configuration)
             paymentSheet?.present(from: self.viewController) { paymentResult in

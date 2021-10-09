@@ -12,6 +12,7 @@
       </feature>
     </config-file>
     <config-file target="AndroidManifest.xml" parent="/manifest/application">
+      <meta-data android:name="com.google.android.gms.wallet.api.enabled" android:value="true" />
       <activity android:theme="@style/Theme.AppCompat.Light.NoActionBar" android:name="cordova.plugin.stripeuiplugin.CheckoutActivity">
         <intent-filter>
           <action android:name="android.intent.action.DEFAULT"/>

@@ -1,9 +1,9 @@
 const PORT = 3000;
 const SK = 'sk_test_...';
 const PK = 'pk_test_...';
-const COMPANY_NAME = 'COMPANY_NAME';
-const APPLE_MERCHANT_ID = 'APPLE_MERCHANT_ID';
-const APPLE_MERCHANT_COUNTRYCODE = 'APPLE_MERCHANT_COUNTRYCODE';
+const COMPANY_NAME = 'ACME';
+const APPLE_MERCHANT_ID = 'com.example.myapp';
+const APPLE_MERCHANT_COUNTRYCODE = 'US';
 const cors = require("cors");
 const express = require("express");
 const app = express();
@@ -41,7 +41,7 @@ app.post("/payment", async (request, response) => {
             publishableKey: PK,
             companyName: COMPANY_NAME,
             paymentIntent: paymentIntent.client_secret,
-            customer: customer.id,
+            customerId: customer.id,
             ephemeralKey: ephemeralKey.secret,
             appleMerchantId: APPLE_MERCHANT_ID,
             appleMerchantCountryCode: APPLE_MERCHANT_COUNTRYCODE

@@ -30,17 +30,42 @@ public class StripeUIPlugin extends CordovaPlugin {
         cordova.getThreadPool().execute(() -> {
             try {
                 callback = callbackContext;
-                String publishableKey = args.getString(0);
-                String companyName = args.getString(1);
-                String paymentIntent = args.getString(2);
-                String customer = args.getString(3);
-                String ephemeralKey = args.getString(4);
+                JSONObject paymentConfig = !args.getString(0).equals("null") ? args.getJSONObject(0) : null;
+                JSONObject billingConfig = !args.getString(1).equals("null") ? args.getJSONObject(1) : null;
+                assert paymentConfig != null;
+                String publishableKey = paymentConfig.getString("publishableKey");
+                String companyName = paymentConfig.getString("companyName");
+                String paymentIntent = paymentConfig.getString("paymentIntent");
+                String customerId = paymentConfig.getString("customerId");
+                String ephemeralKey = paymentConfig.getString("ephemeralKey");
+                String appleMerchantCountryCode = paymentConfig.getString("appleMerchantCountryCode");
                 Intent intent = new Intent(cordova.getActivity().getApplicationContext(), CheckoutActivity.class);
                 intent.putExtra("publishableKey", publishableKey);
                 intent.putExtra("companyName", companyName);
                 intent.putExtra("paymentIntent", paymentIntent);
-                intent.putExtra("customer", customer);
+                intent.putExtra("customerId", customerId);
                 intent.putExtra("ephemeralKey", ephemeralKey);
+                intent.putExtra("appleMerchantCountryCode", appleMerchantCountryCode);
+                if (billingConfig != null) {
+                    String billingEmail = billingConfig.getString("billingEmail");
+                    String billingName = billingConfig.getString("billingName");
+                    String billingPhone = billingConfig.getString("billingPhone");
+                    String billingCity = billingConfig.getString("billingCity");
+                    String billingCountry = billingConfig.getString("billingCountry");
+                    String billingLine1 = billingConfig.getString("billingLine1");
+                    String billingLine2 = billingConfig.getString("billingLine2");
+                    String billingPostalCode = billingConfig.getString("billingPostalCode");
+                    String billingState = billingConfig.getString("billingState");
+                    intent.putExtra("billingEmail", billingEmail);
+                    intent.putExtra("billingName", billingName);
+                    intent.putExtra("billingPhone", billingPhone);
+                    intent.putExtra("billingCity", billingCity);
+                    intent.putExtra("billingCountry", billingCountry);
+                    intent.putExtra("billingLine1", billingLine1);
+                    intent.putExtra("billingLine2", billingLine2);
+                    intent.putExtra("billingPostalCode", billingPostalCode);
+                    intent.putExtra("billingState", billingState);
+                }
                 cordova.setActivityResultCallback(this);
                 cordova.getActivity().startActivityForResult(intent, 1);
             } catch (Throwable e) {
