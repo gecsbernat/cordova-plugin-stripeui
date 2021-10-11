@@ -36,6 +36,7 @@ public class CheckoutActivity extends AppCompatActivity {
         String billingLine2 = receivedIntent.getStringExtra("billingLine2");
         String billingPostalCode = receivedIntent.getStringExtra("billingPostalCode");
         String billingState = receivedIntent.getStringExtra("billingState");
+        boolean mobilePayEnabled = receivedIntent.getBooleanExtra("mobilePayEnabled", false);
         try {
             assert publishableKey != null;
             assert paymentIntent != null;
@@ -48,7 +49,7 @@ public class CheckoutActivity extends AppCompatActivity {
             PaymentSheet.Address billingAddress = new PaymentSheet.Address(billingCity, billingCountry, billingLine1, billingLine2, billingPostalCode, billingState);
             PaymentSheet.BillingDetails billingDetails = new PaymentSheet.BillingDetails(billingAddress, billingEmail, billingName, billingPhone);
             PaymentSheet.CustomerConfiguration customerConfig = new PaymentSheet.CustomerConfiguration(customerId, ephemeralKey);
-            PaymentSheet.GooglePayConfiguration googlePayConfig = new PaymentSheet.GooglePayConfiguration(PaymentSheet.GooglePayConfiguration.Environment.Production, appleMerchantCountryCode);
+            PaymentSheet.GooglePayConfiguration googlePayConfig = mobilePayEnabled ? new PaymentSheet.GooglePayConfiguration(PaymentSheet.GooglePayConfiguration.Environment.Production, appleMerchantCountryCode) : null;
             PaymentSheet.Configuration configuration = new PaymentSheet.Configuration(companyName, customerConfig, googlePayConfig, null, billingDetails);
             paymentSheet.presentWithPaymentIntent(paymentIntent, configuration);
         } catch (Exception e) {
