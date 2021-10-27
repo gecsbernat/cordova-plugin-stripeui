@@ -14,38 +14,43 @@ app.use(cors({ origin: '*' }));
 app.post("/payment", async (request, response) => {
     try {
         const body = request.body;
-        const amount = body.amount || 0;
-        const currency = body.currency || 'USD';
+        const amount = body.amount || null;
+        const currency = body.currency || null;
         const customerId = body.customerId || null;
         const customerEmail = body.customerEmail || null;
         const customerName = body.customerName || null;
-        let customer = null;
-        if (customerId) {
-            customer = { id: customerId };
-        } else {
-            customer = await stripe.customers.create({
-                email: customerEmail,
-                name: customerName
+        if (amount !== null && currency !== null) {
+            let customer = null;
+            if (customerId) {
+                customer = { id: customerId };
+            } else {
+                customer = await stripe.customers.create({
+                    email: customerEmail,
+                    name: customerName
+                });
+            }
+            const ephemeralKey = await stripe.ephemeralKeys.create(
+                { customer: customer.id },
+                { apiVersion: '2020-08-27' }
+            );
+            const paymentIntent = await stripe.paymentIntents.create({
+                amount: amount,
+                currency: currency,
+                customer: customer.id
             });
+            response.status(200).send({
+                publishableKey: PK,
+                companyName: COMPANY_NAME,
+                paymentIntent: paymentIntent.client_secret,
+                customerId: customer.id,
+                ephemeralKey: ephemeralKey.secret,
+                appleMerchantId: APPLE_MERCHANT_ID,
+                appleMerchantCountryCode: APPLE_MERCHANT_COUNTRYCODE
+            });
+        } else {
+            error = 'INVALID_PARAMS';
+            response.status(500).send(error);
         }
-        const ephemeralKey = await stripe.ephemeralKeys.create(
-            { customer: customer.id },
-            { apiVersion: '2020-08-27' }
-        );
-        const paymentIntent = await stripe.paymentIntents.create({
-            amount: amount,
-            currency: currency,
-            customer: customer.id
-        });
-        response.status(200).send({
-            publishableKey: PK,
-            companyName: COMPANY_NAME,
-            paymentIntent: paymentIntent.client_secret,
-            customerId: customer.id,
-            ephemeralKey: ephemeralKey.secret,
-            appleMerchantId: APPLE_MERCHANT_ID,
-            appleMerchantCountryCode: APPLE_MERCHANT_COUNTRYCODE
-        });
     } catch (error) {
         error = JSON.stringify(error);
         response.status(500).send(error);
